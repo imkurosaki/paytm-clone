@@ -7,7 +7,7 @@ const app: Application = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: "https://app.100xdevs.com",
+    origin: "http://localhost:5173",
     optionsSuccessStatus: 200
 }));
 

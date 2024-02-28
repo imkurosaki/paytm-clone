@@ -50,19 +50,20 @@ router.post('/signup', async (req: Request, res: Response) => {
         balance: randomBalance
     })
 
-    // const newUserId: object = newUser._id;
-    // const token: string = jwt.sign({
-    //     userId: newUserId
-    // }, JWT_SECRET);
+    const newUserId: object = newUser._id;
+    const token: string = jwt.sign({
+        userId: newUserId
+    }, JWT_SECRET);
 
     res.status(200).json({
-        message: "User created successfully"
+        message: "User created successfully",
+        token
     })
 })
 
 router.post('/signin', async (req: Request, res: Response) => {
     const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const user: any = await User.findOne({ username });
 
     if (!user) {
         return res.status(400).json({
@@ -82,6 +83,10 @@ router.post('/signin', async (req: Request, res: Response) => {
     }, JWT_SECRET)
 
     res.status(200).json({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        created_at: user.created_at,
         token: `Bearer ${token}`
     })
 })
@@ -113,15 +118,21 @@ router.put('/', authMiddleware, async (req: any, res: Response) => {
 })
 
 router.get('/bulk', authMiddleware, async (req: any, res: Response) => {
-    const filter: string = req.query.filter || "";
+    const filter: string = req.query.filter.toLowerCase() || "";
     const users: Array<object> = await User.find({
         $or: [
             {
+                _id: {
+                    $ne: req.userId
+                },
                 firstName: {
                     "$regex": filter
                 }
             },
             {
+                _id: {
+                    $ne: req.userId
+                },
                 lastName: {
                     "$regex": filter
                 }
